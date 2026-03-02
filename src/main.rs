@@ -1,38 +1,26 @@
+/**
+ * @file: main.rs
+ * @author: Krisna Pranav
+*/
+
+mod gui;
 mod network;
 mod url;
 mod engine;
 
-use std::env;
+use gui::window::WindowApp;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let mut app = WindowApp::new(800, 600);
 
-    if args.len() < 2 {
-        println!("Usage: vortexa http://example.com");
-        return;
-    }
+    let url = "http://example.com";
 
-    let input_url = &args[1];
-
-    let parsed = match url::parser::parse(input_url) {
-        Ok(u) => u,
-        Err(e) => {
-            println!("URL Error: {}", e);
-            return;
-        }
-    };
-
-    let response = match network::http::fetch(&parsed.host, &parsed.path) {
-        Ok(r) => r,
-        Err(e) => {
-            println!("Network Error: {}", e);
-            return;
-        }
-    };
-
+    let parsed = url::parser::parse(url).unwrap();
+    let response = network::http::fetch(&parsed.host, &parsed.path).unwrap();
     let body = network::http::extract_body(&response);
 
     let dom = engine::html::parse(&body);
+    let layout = engine::layout::build_layout(&dom, 800);
 
-    engine::render::render(&dom);
+    app.run(layout);
 }
