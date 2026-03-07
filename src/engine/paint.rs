@@ -6,7 +6,7 @@
 use super::layout::LayoutBox;
 use super::font::{get_char_bitmap, FONT_WIDTH, FONT_HEIGHT};
 
-pub fn paint(layout: &Vec<LayoutBox>, buffer: &mut [u32], width: usize) {
+pub fn paint(layout: &Vec<LayoutBox>, buffer: &mut [u32], width: usize, offset_y: usize) {
     for item in layout {
         if let Some(text) = &item.text {
             let mut cursor_x = item.x;

@@ -7,6 +7,7 @@ mod gui;
 mod network;
 mod url;
 mod engine;
+mod browser;
 
 use gui::window::WindowApp;
 
