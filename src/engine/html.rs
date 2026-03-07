@@ -6,7 +6,7 @@
 use super::dom::{Node, NodeType};
 
 pub fn parse(source: &str) -> Node {
-    let mut root = Node::new(NodeType::Element("html".into()));
+    let root = Node::new(NodeType::Element("html".into()));
     let mut stack: Vec<Node> = Vec::new();
     stack.push(root);
 

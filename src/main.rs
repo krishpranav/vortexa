@@ -4,24 +4,29 @@
 */
 
 mod gui;
+mod browser;
 mod network;
 mod url;
 mod engine;
-mod browser;
 
 use gui::window::WindowApp;
+use engine::{html, layout};
+use network::http;
+use url::parser;
 
 fn main() {
-    let mut app = WindowApp::new(800, 600);
 
-    let url = "http://example.com";
+    let url = "https://google.com";
 
-    let parsed = url::parser::parse(url).unwrap();
-    let response = network::http::fetch(&parsed.host, &parsed.path).unwrap();
-    let body = network::http::extract_body(&response);
+    let parsed = parser::parse(url).unwrap();
+    let response = http::fetch(&parsed.host, &parsed.path).unwrap();
 
-    let dom = engine::html::parse(&body);
-    let layout = engine::layout::build_layout(&dom, 800);
+    let body = http::extract_body(&response);
 
-    app.run(layout);
+    let dom = html::parse(&body);
+    let layout_tree = layout::build_layout(&dom, 800);
+
+    let mut app = WindowApp::new(800, 600, layout_tree);
+
+    app.run();
 }
