@@ -4,24 +4,34 @@
 */
 
 pub struct Url {
+    pub scheme: String,
     pub host: String,
     pub path: String,
 }
 
-pub fn parse(url: &str) -> Result<Url, String> {
-    if !url.starts_with("http://") {
-        return Err("Only http supported".into());
-    }
+pub fn parse(input: &str) -> Result<Url, String> {
 
-    let trimmed = &url[7..];
-    let parts: Vec<&str> = trimmed.splitn(2, '/').collect();
+    let (scheme, rest) = if input.starts_with("https://") {
+        ("https", &input[8..])
+    } else if input.starts_with("http://") {
+        ("http", &input[7..])
+    } else {
+        return Err("Unsupported scheme".into());
+    };
+
+    let parts: Vec<&str> = rest.splitn(2, '/').collect();
 
     let host = parts[0].to_string();
+
     let path = if parts.len() > 1 {
         format!("/{}", parts[1])
     } else {
-        "/".into()
+        "/".to_string()
     };
 
-    Ok(Url { host, path })
+    Ok(Url {
+        scheme: scheme.to_string(),
+        host,
+        path,
+    })
 }
