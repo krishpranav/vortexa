@@ -4,12 +4,14 @@
 */
 
 use super::dom::{Node, NodeType};
+
 #[derive(Clone)]
 pub struct LayoutBox {
     pub x: usize,
     pub y: usize,
     pub width: usize,
     pub height: usize,
+    pub text: Option<String>,
 }
 
 pub fn build_layout(dom: &Node, screen_width: usize) -> Vec<LayoutBox> {
@@ -30,14 +32,18 @@ fn build_node(
     match &node.node_type {
         NodeType::Text(text) => {
             let height = 20;
+
             boxes.push(LayoutBox {
                 x: 10,
                 y: *current_y,
                 width: screen_width - 20,
                 height,
+                text: Some(text.clone()),
             });
-            *current_y += height + 5;
+
+            *current_y += height + 10;
         }
+
         NodeType::Element(_) => {
             for child in &node.children {
                 build_node(child, screen_width, current_y, boxes);
