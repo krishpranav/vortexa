@@ -5,14 +5,26 @@
 
 use std::io::{Read, Write};
 use std::net::TcpStream;
+use std::sync::Arc;
+use rustls::{ClientConfig, ClientConnection, RootCertStore};
+use webpki_roots::TLS_SERVER_ROOTS;
+use crate::url::parser::Url;
 
-pub fn fetch(host: &str, path: &str) -> Result<String, String> {
+pub fn fetch(url: &Url) -> Result<String, String> {
+    if url.scheme == "http" {
+        fetch_http(url)
+    } else {
+        fetch_https(url)
+    }
+}
+
+pub fn fetch_http(url: &Url) -> Result<String, String> {
     let mut stream = TcpStream::connect(format!("{}:80", host))
         .map_err(|e| e.to_string())?;
 
     let request = format!(
         "GET {} HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n\r\n",
-        path, host
+        url.path, url.host
     );
 
     stream.write_all(request.as_bytes())
@@ -24,6 +36,11 @@ pub fn fetch(host: &str, path: &str) -> Result<String, String> {
         .map_err(|e| e.to_string())?;
 
     Ok(response)
+}
+
+fn fetch_https(url: &Url) -> Result<String, String> {
+    let mut root_store = RootCertStore::empty();
+    root_store.extend(TLS_SERVER_ROOTS.iter().cloned());
 }
 
 pub fn extract_body(response: &str) -> String {
